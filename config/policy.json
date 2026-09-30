@@ -1,0 +1,52 @@
+{
+  "version": "0.2.0",
+  "defaultEffect": "deny",
+  "denyTools": ["gmail.send"],
+  "rings": {
+    "read": 3,
+    "write": 2,
+    "destructive": 1,
+    "untrusted": 0
+  },
+  "denyPathPrefixes": [".ssh", ".aws", ".vyro/secrets", ".gnupg"],
+  "rules": [
+    {
+      "id": "unknown-deny",
+      "when": { "unknownTool": true },
+      "effect": "deny",
+      "ring": 0,
+      "note": "Unknown tool"
+    },
+    {
+      "id": "untrusted-no-write",
+      "when": { "sourceTrust": "untrusted", "toolClassIn": ["write", "destructive"] },
+      "effect": "deny",
+      "ring": 0,
+      "note": "Untrusted content cannot trigger writes"
+    },
+    {
+      "id": "read-allow",
+      "when": { "toolClass": "read" },
+      "effect": "allow",
+      "ring": 3
+    },
+    {
+      "id": "write-approve",
+      "when": { "toolClass": "write" },
+      "effect": "require_approval",
+      "ring": 2,
+      "approval": "token",
+      "ttlMinutes": 5,
+      "note": "Write requires approval"
+    },
+    {
+      "id": "destructive-approve",
+      "when": { "toolClass": "destructive" },
+      "effect": "require_approval",
+      "ring": 1,
+      "approval": "token",
+      "ttlMinutes": 1,
+      "note": "Destructive action requires approval"
+    }
+  ]
+}
