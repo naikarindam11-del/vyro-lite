@@ -1,0 +1,14 @@
+{
+  "name": "vyro-lite",
+  "version": "0.2.0",
+  "description": "Vyro Lite — bootable command-centre kernel",
+  "type": "module",
+  "scripts": {
+    "dev": "node --experimental-strip-types src/index.ts",
+    "start": "node --experimental-strip-types src/index.ts",
+    "test": "node --experimental-strip-types --test tests/*.test.ts"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

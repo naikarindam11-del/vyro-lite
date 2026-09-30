@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: vyro-lite
+    runtime: node
+    plan: free
+    buildCommand: "echo no-build"
+    startCommand: "node --experimental-strip-types src/index.ts"
+    envVars:
+      - key: VYRO_ENV
+        value: production
+      - key: VYRO_HOST
+        value: 0.0.0.0
+      - key: PORT
+        value: 10000
+      - key: VYRO_DATA_DIR
+        value: /tmp/vyro-lite-data
+      - key: VYRO_VAULT_DIR
+        value: /tmp/vyro-lite-data/vault
+      - key: AGENT_TOKEN
+        generateValue: true
+    healthCheckPath: /api/health
