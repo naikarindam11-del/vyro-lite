@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Vyro Lite</title>
+<style>
+:root{color-scheme:dark;--bg:#0b0d10;--card:#14181e;--line:#2a313c;--ink:#e8edf4;--mute:#93a0b3;--ok:#7dffa3;--warn:#ffd37d}
+*{box-sizing:border-box}body{margin:0;font:14px/1.45 ui-sans-serif,system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+header{padding:18px 22px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+h1{font-size:16px;margin:0;letter-spacing:.04em}main{display:grid;grid-template-columns:1.2fr .8fr;gap:16px;padding:16px}
+section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;min-height:180px}
+h2{margin:0 0 10px;font-size:12px;color:var(--mute);text-transform:uppercase;letter-spacing:.08em}
+textarea{width:100%;background:#0e1217;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px}
+button{background:#e8edf4;color:#0b0d10;border:0;border-radius:8px;padding:8px 12px;font-weight:600;cursor:pointer}
+button.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.row{display:flex;gap:8px;margin-top:8px}pre{white-space:pre-wrap;font:12px/1.4 ui-monospace,monospace;color:#c9d4e3;margin:0}
+.pill{display:inline-block;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--mute);font-size:11px}
+.ok{color:var(--ok)}.warn{color:var(--warn)}@media(max-width:900px){main{grid-template-columns:1fr}}
+</style></head><body>
+<header><h1>VYRO LITE</h1><div id="health" class="pill">checking…</div></header>
+<main><section><h2>Ask</h2>
+<textarea id="ask" rows="4" placeholder="status · brief · remember buy milk · write notes.md hello · restart vyro.briefing"></textarea>
+<div class="row"><button id="send">Run</button><button class="ghost" id="approve">Approve last</button><button class="ghost" id="deny">Deny last</button></div>
+<h2 style="margin-top:16px">Plan</h2><pre id="plan">idle</pre></section>
+<section><h2>Events</h2><pre id="events">—</pre></section></main>
+<script>
+const qs=new URLSearchParams(location.search);
+const token=qs.get("token")||localStorage.getItem("vyroToken")||"";
+if(qs.get("token")) localStorage.setItem("vyroToken",token);
+const headers={"content-type":"application/json",...(token?{authorization:"Bearer "+token}:{})};
+let lastId=null;
+async function j(url,opts){const res=await fetch(url,opts);const data=await res.json();if(!res.ok) throw new Error(data.error||res.statusText);return data;}
+async function refresh(){const h=await j("/api/health");const el=document.getElementById("health");el.textContent=h.ok?"healthy":"degraded";el.className="pill "+(h.ok?"ok":"warn");const ev=await j("/api/events");document.getElementById("events").textContent=ev.events.map(e=>`${new Date(e.ts).toISOString().slice(11,19)}  ${e.kind}`).join("\n")||"—";}
+function show(plan){lastId=plan.id;document.getElementById("plan").textContent=JSON.stringify(plan,null,2);}
+document.getElementById("send").onclick=async()=>{const text=document.getElementById("ask").value.trim();if(!text)return;show(await j("/api/ask",{method:"POST",headers,body:JSON.stringify({text})}));refresh();};
+document.getElementById("approve").onclick=async()=>{if(!lastId)return;show(await j("/api/plans/"+lastId+"/approve",{method:"POST",headers}));refresh();};
+document.getElementById("deny").onclick=async()=>{if(!lastId)return;show(await j("/api/plans/"+lastId+"/deny",{method:"POST",headers}));refresh();};
+refresh().catch(err=>{document.getElementById("health").textContent=err.message;});
+</script></body></html>
