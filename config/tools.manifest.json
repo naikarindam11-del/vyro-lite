@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "tools": [
+    { "name": "vault.read", "class": "read", "scopes": ["vault:read"], "description": "Read a file inside the vault", "idempotent": true, "rateLimit": 60 },
+    { "name": "vault.write", "class": "write", "scopes": ["vault:write"], "description": "Write a file inside the vault", "idempotent": false, "undo": "vault.undo", "rateLimit": 30 },
+    { "name": "vault.undo", "class": "write", "scopes": ["vault:write"], "description": "Restore the last vault write snapshot", "idempotent": true, "rateLimit": 20 },
+    { "name": "vault.list", "class": "read", "scopes": ["vault:read"], "description": "List files in a vault directory", "idempotent": true, "rateLimit": 60 },
+    { "name": "memory.remember", "class": "write", "scopes": ["memory:write"], "description": "Store a memory note", "idempotent": false, "rateLimit": 40 },
+    { "name": "memory.recall", "class": "read", "scopes": ["memory:read"], "description": "Search memory notes", "idempotent": true, "rateLimit": 60 },
+    { "name": "fleet.status", "class": "read", "scopes": ["fleet:read"], "description": "List unit status", "idempotent": true, "rateLimit": 60 },
+    { "name": "fleet.kickstart", "class": "write", "scopes": ["fleet:write"], "description": "Restart an allowlisted unit", "idempotent": true, "rateLimit": 10 },
+    { "name": "briefing.compile", "class": "read", "scopes": ["brief:read"], "description": "Compile a morning briefing from memory and fleet", "idempotent": true, "rateLimit": 20 },
+    { "name": "web.search", "class": "read", "scopes": ["web:read"], "description": "Search the web (results are untrusted)", "idempotent": true, "rateLimit": 10 }
+  ]
+}
